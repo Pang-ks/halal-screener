@@ -2,10 +2,8 @@ import streamlit as st
 from data_fetcher import get_stock_data, get_historical_prices 
 from halal_engine import screen
 
-# 🌟 1. ปรับ Layout ให้กว้างขึ้น (layout="wide")
 st.set_page_config(page_title="Halal Screener", page_icon="🕌", layout="wide")
 
-# 🌟 2. ใส่ Custom CSS ตกแต่งกล่องตัวเลขให้ดูมินิมอลและเป็นระเบียบ
 st.markdown("""
 <style>
 div[data-testid="metric-container"] {
@@ -36,7 +34,6 @@ with st.expander("📖 เกณฑ์มาตรฐานที่ใช้ว
     | EPS | บวกและเติบโต | ติดลบ | กำไรต่อหุ้น |
     """)
 
-# สร้างเลย์เอาต์จัดช่องค้นหาและปุ่มให้อยู่บรรทัดเดียวกัน
 col_search, col_btn = st.columns([4, 1])
 with col_search:
     ticker = st.text_input("ป้อน Ticker (พิมพ์เสร็จแล้วกด Enter ได้เลย)", placeholder="เช่น NVDA, AAPL, SPTE, PTT.BK", label_visibility="collapsed")
@@ -53,7 +50,6 @@ if ticker or search_btn:
             else:
                 result = screen(data)
 
-                # ส่วนหัว: ชื่อบริษัทและสถานะ
                 st.header(f"{result['ticker']} — {data['name']}")
                 
                 if "PASS" in result['status']:
@@ -63,12 +59,33 @@ if ticker or search_btn:
                 else:
                     st.error(f"**สถานะ:** {result['status']}")
 
+                # ==========================================
+                # 🌟 ส่วนที่เพิ่มใหม่: ตรวจสอบและแสดงสาเหตุที่ไม่ผ่านเกณฑ์
+                if "PASS" not in result['status']:
+                    reasons = []
+                    
+                    # ถ้าเป็น ETF แล้วไม่ผ่าน
+                    if data.get("is_etf"):
+                        reasons.append("- ⚠️ เป็นกองทุน ETF ทั่วไปที่ไม่ได้ระบุว่าเป็น Sharia-compliant (ต้องตรวจสอบหุ้นในกองทุนเพิ่มเติมด้วยตัวเอง)")
+                    # ถ้าเป็นหุ้นปกติ แล้วไม่ผ่าน
+                    else:
+                        if not result.get('debt_ok'):
+                            reasons.append(f"- ❌ **หนี้สิน (Debt Ratio):** สูงเกิน 33% (ปัจจุบันอยู่ที่ {data['debt_ratio']*100:.1f}%)")
+                        if not result.get('interest_ok'):
+                            reasons.append(f"- ❌ **รายได้จากดอกเบี้ย (Interest Ratio):** สูงเกิน 5% (ปัจจุบันอยู่ที่ {data['interest_ratio']*100:.1f}%)")
+                        if not result.get('sector_ok'):
+                            reasons.append(f"- ❌ **หมวดหมู่ธุรกิจ (Sector):** อยู่ในกลุ่มต้องห้าม ({data['sector']})")
+                        if not result.get('business_ok'):
+                            reasons.append(f"- ❌ **ลักษณะธุรกิจ:** มีคำอธิบายเกี่ยวข้องกับสิ่งต้องห้าม (เช่น ธุรกิจการเงิน, ยาสูบ, แอลกอฮอล์, อาวุธ ฯลฯ)")
+                    
+                    if reasons:
+                        st.error("**สาเหตุที่ทำให้ไม่ผ่านเกณฑ์:**\n" + "\n".join(reasons))
+                # ==========================================
+
                 st.divider()
 
-                # 🌟 3. สร้าง Tabs เพื่อจัดระเบียบข้อมูลให้ดูสะอาดตา
                 tab1, tab2, tab3 = st.tabs(["📈 ภาพรวม & กราฟ", "🕌 เกณฑ์ Halal", "📊 งบการเงิน & มูลค่า"])
 
-                # ================= TAB 1: ภาพรวม =================
                 with tab1:
                     col1, col2, col3 = st.columns(3)
                     col1.metric("ราคาปัจจุบัน", f"${data['price']}" if data['price'] else "N/A")
@@ -89,14 +106,13 @@ if ticker or search_btn:
                     else:
                         st.info("ℹ️ ไม่มีข้อมูลกราฟราคาย้อนหลังสำหรับช่วงเวลานี้")
 
-                # ================= TAB 2: เกณฑ์ Halal =================
                 with tab2:
                     c1, c2, c3 = st.columns(3)
                     c1.metric("Debt Ratio", f"{data['debt_ratio']*100:.1f}%",
-                              delta="ผ่าน ✅" if result['debt_ok'] else "ไม่ผ่าน ❌")
+                              delta="ผ่าน ✅" if result.get('debt_ok', True) else "ไม่ผ่าน ❌")
                     c2.metric("Interest Ratio", f"{data['interest_ratio']*100:.1f}%",
-                              delta="ผ่าน ✅" if result['interest_ok'] else "ไม่ผ่าน ❌")
-                    c3.metric("Business Sector", "ผ่าน ✅" if result['business_ok'] else "ไม่ผ่าน ❌")
+                              delta="ผ่าน ✅" if result.get('interest_ok', True) else "ไม่ผ่าน ❌")
+                    c3.metric("Business Sector", "ผ่าน ✅" if result.get('business_ok', True) else "ไม่ผ่าน ❌")
 
                     st.info(f"""
                     **📌 บทวิเคราะห์ชะรีอะห์เบื้องต้น**
@@ -105,7 +121,6 @@ if ticker or search_btn:
                     - **ธุรกิจหลัก:** {data['description'][:300]}...
                     """)
 
-                # ================= TAB 3: Valuation =================
                 with tab3:
                     st.markdown("#### 📊 มูลค่าหุ้น (Valuation)")
                     v1, v2, v3 = st.columns(3)

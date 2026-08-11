@@ -3,7 +3,7 @@ from data_fetcher import get_stock_data, get_historical_prices
 from halal_engine import screen
 
 # 🌟 1. ปรับ Layout ให้กว้างขึ้น (layout="wide")
-st.set_page_config(page_title="Halal Screener", page_icon="🕌", layout="wide")
+st.set_page_config(page_title="Halal Screnner", page_icon="🕌", layout="wide")
 
 # 🌟 2. ใส่ Custom CSS ตกแต่งกล่องตัวเลขให้ดูมินิมอลและเป็นระเบียบ
 st.markdown("""

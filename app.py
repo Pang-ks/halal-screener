@@ -8,59 +8,32 @@ st.set_page_config(page_title="Qubix Halal Screener", page_icon="🕌", layout="
 # 🌟 2. CSS สำหรับ Dark Theme Terminal & White Cards
 st.markdown("""
 <style>
-    /* พื้นหลังหลักสีดำ/น้ำเงินเข้มแบบ Terminal */
-    .stApp, .block-container {
-        background-color: #0B0E14 !important;
-        color: #FFFFFF !important;
-    }
-    
-    /* บังคับสีตัวอักษรพื้นฐาน */
+    .stApp, .block-container { background-color: #0B0E14 !important; color: #FFFFFF !important; }
     h1, h2, h3, h4, p, span, label { color: #FFFFFF; }
-
-    /* ซ่อน UI ที่ไม่จำเป็น */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-
-    /* แถบเมนูด้านบน (Mock) */
+    
     .top-nav { display: flex; gap: 10px; margin-bottom: 25px; align-items: center; }
     .nav-btn { background-color: #1A1F2C; padding: 8px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; color: #8F9BBA; }
     .nav-btn.active { background-color: #FFFFFF; color: #0B0E14; }
-
-    /* โซนข้อมูลด้านซ้ายของกราฟ */
+    
     .chart-stats-label { font-size: 12px; color: #64748B; margin-bottom: 2px; margin-top: 10px; }
     .chart-stats-val { font-size: 14px; font-weight: bold; color: #E2E8F0; }
-
-    /* White Cards สำหรับข้อมูลด้านล่าง */
-    .white-card {
-        background-color: #FFFFFF;
-        border-radius: 16px;
-        padding: 24px;
-        color: #121212 !important;
-        height: 100%;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    /* บังคับตัวอักษรในการ์ดขาวให้เป็นสีเข้ม */
+    
+    .white-card { background-color: #FFFFFF; border-radius: 16px; padding: 24px; color: #121212 !important; height: 100%; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     .white-card h1, .white-card h2, .white-card h3, .white-card h4, .white-card p, .white-card span, .white-card div { color: #121212 !important; }
     .card-subtitle { font-size: 14px; color: #64748B !important; font-weight: 600; margin-bottom: 15px;}
     .card-big-val { font-size: 36px; font-weight: bold; margin: 10px 0; }
     
-    /* Badge สถานะ */
     .badge-pass { background: #E6F4EA; color: #137333 !important; padding: 6px 12px; border-radius: 6px; font-size: 14px; font-weight: bold;}
     .badge-fail { background: #FCE8E6; color: #C5221F !important; padding: 6px 12px; border-radius: 6px; font-size: 14px; font-weight: bold;}
 
-    /* Custom Input & Button */
     div[data-testid="stTextInput"] input { background-color: #1A1F2C !important; color: white !important; border: 1px solid #2D3748 !important; border-radius: 8px !important; }
     div[data-testid="stButton"] button { background-color: #FFFFFF !important; color: #0B0E14 !important; font-weight: bold !important; border-radius: 8px !important; height: 42px !important; width: 100%; border: none !important;}
     div[data-testid="stButton"] button:hover { background-color: #E2E8F0 !important; color: #0B0E14 !important; }
-    div[data-testid="stButton"] button p { color: #0B0E14 !important; font-weight: bold !important; } /* แก้สีตัวอักษรปุ่ม */
+    div[data-testid="stButton"] button p { color: #0B0E14 !important; font-weight: bold !important; }
 
-    /* Footer - Arfam Kasa */
-    .custom-footer {
-        position: fixed; bottom: 0; left: 0; width: 100%;
-        background-color: #0B0E14; text-align: center; padding: 15px;
-        font-size: 0.9rem; font-weight: 500; color: #64748B !important;
-        border-top: 1px solid #1A1F2C; z-index: 100;
-    }
+    .custom-footer { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #0B0E14; text-align: center; padding: 15px; font-size: 0.9rem; font-weight: 500; color: #64748B !important; border-top: 1px solid #1A1F2C; z-index: 100; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -108,22 +81,19 @@ if ticker or search_btn:
                             st.line_chart(history_data, height=350)
                             
                     with stats_col:
-                        st.markdown(f"""
-<div class="chart-stats-label">Market Capitalization</div>
-<div class="chart-stats-val">${data['market_cap']:,.0f}</div>
-
-<div class="chart-stats-label">P/E Ratio (TTM)</div>
-<div class="chart-stats-val">{data['pe_ratio']:.2f}</div>
-
-<div class="chart-stats-label">ROE</div>
-<div class="chart-stats-val">{data['roe']*100:.2f}%</div>
-
-<div class="chart-stats-label">Dividend Yield</div>
-<div class="chart-stats-val">{data.get('dividend_yield', 0)*100:.2f}%</div>
-
-<div class="chart-stats-label">Current Price</div>
-<div class="chart-stats-val" style="font-size: 24px; color: #FFFFFF;">${data['price']}</div>
-""", unsafe_allow_html=True)
+                        html_stats = (
+                            '<div class="chart-stats-label">Market Capitalization</div>'
+                            f'<div class="chart-stats-val">${data["market_cap"]:,.0f}</div>'
+                            '<div class="chart-stats-label">P/E Ratio (TTM)</div>'
+                            f'<div class="chart-stats-val">{data["pe_ratio"]:.2f}</div>'
+                            '<div class="chart-stats-label">ROE</div>'
+                            f'<div class="chart-stats-val">{data["roe"]*100:.2f}%</div>'
+                            '<div class="chart-stats-label">Dividend Yield</div>'
+                            f'<div class="chart-stats-val">{data.get("dividend_yield", 0)*100:.2f}%</div>'
+                            '<div class="chart-stats-label">Current Price</div>'
+                            f'<div class="chart-stats-val" style="font-size: 24px; color: #FFFFFF;">${data["price"]}</div>'
+                        )
+                        st.markdown(html_stats, unsafe_allow_html=True)
 
                     st.write("")
                     
@@ -135,53 +105,64 @@ if ticker or search_btn:
                     status_text = "Halal Certified" if is_pass else ("Doubtful" if "DOUBTFUL" in result['status'] else "Not Halal")
                     
                     with c1:
-                        st.markdown(f"""
-<div class="white-card">
-    <div class="card-subtitle">Compliance Status</div>
-    <div class="card-big-val">{status_text}</div>
-    <span class="{badge_class}">AAOIFI Standards</span>
-    <div style="margin-top: 20px; font-size: 14px; color: #64748B;">
-        Analyzed based on latest financial statements and business activities.
-    </div>
-</div>
-""", unsafe_allow_html=True)
+                        html_c1 = (
+                            '<div class="white-card">'
+                            '<div class="card-subtitle">Compliance Status</div>'
+                            f'<div class="card-big-val">{status_text}</div>'
+                            f'<span class="{badge_class}">AAOIFI Standards</span>'
+                            '<div style="margin-top: 20px; font-size: 14px; color: #64748B;">'
+                            'Analyzed based on latest financial statements and business activities.'
+                            '</div>'
+                            '</div>'
+                        )
+                        st.markdown(html_c1, unsafe_allow_html=True)
                         
-                   with c2:
-                        debt_pct = data['debt_ratio']*100
-                        int_pct = data['interest_ratio']*100
-                        st.markdown(f"""<div class="white-card">
-<div class="card-subtitle">Shariah Metrics (Financials)</div>
-<div style="display:flex; justify-content:space-between; font-size: 14px; margin-top: 15px;">
-<span>Debt Ratio (&lt;33%)</span>
-<strong>{debt_pct:.1f}% {'✅' if result.get('debt_ok', True) else '❌'}</strong>
-</div>
-<div style="background:#F1F5F9; height:8px; border-radius:4px; margin-top:5px; margin-bottom: 20px;">
-<div style="width:{min(debt_pct, 100)}%; background:#3B82F6; height:8px; border-radius:4px;"></div>
-</div>
-<div style="display:flex; justify-content:space-between; font-size: 14px;">
-<span>Interest Income (&lt;5%)</span>
-<strong>{int_pct:.1f}% {'✅' if result.get('interest_ok', True) else '❌'}</strong>
-</div>
-<div style="background:#F1F5F9; height:8px; border-radius:4px; margin-top:5px;">
-<div style="width:{min(int_pct*5, 100)}%; background:#8B5CF6; height:8px; border-radius:4px;"></div>
-</div>
-</div>""", unsafe_allow_html=True)
+                    with c2:
+                        debt_pct = data['debt_ratio'] * 100
+                        int_pct = data['interest_ratio'] * 100
+                        debt_status = "✅" if result.get('debt_ok', True) else "❌"
+                        int_status = "✅" if result.get('interest_ok', True) else "❌"
+                        
+                        html_c2 = (
+                            '<div class="white-card">'
+                            '<div class="card-subtitle">Shariah Metrics (Financials)</div>'
+                            '<div style="display:flex; justify-content:space-between; font-size: 14px; margin-top: 15px;">'
+                            '<span>Debt Ratio (&lt;33%)</span>'
+                            f'<strong>{debt_pct:.1f}% {debt_status}</strong>'
+                            '</div>'
+                            '<div style="background:#F1F5F9; height:8px; border-radius:4px; margin-top:5px; margin-bottom: 20px;">'
+                            f'<div style="width:{min(debt_pct, 100)}%; background:#3B82F6; height:8px; border-radius:4px;"></div>'
+                            '</div>'
+                            '<div style="display:flex; justify-content:space-between; font-size: 14px;">'
+                            '<span>Interest Income (&lt;5%)</span>'
+                            f'<strong>{int_pct:.1f}% {int_status}</strong>'
+                            '</div>'
+                            '<div style="background:#F1F5F9; height:8px; border-radius:4px; margin-top:5px;">'
+                            f'<div style="width:{min(int_pct*5, 100)}%; background:#8B5CF6; height:8px; border-radius:4px;"></div>'
+                            '</div>'
+                            '</div>'
+                        )
+                        st.markdown(html_c2, unsafe_allow_html=True)
+                        
                     with c3:
-                        st.markdown(f"""
-<div class="white-card">
-    <div class="card-subtitle">Business Activity Screening</div>
-    <div style="margin-top: 15px; padding-bottom: 10px; border-bottom: 1px solid #E2E8F0;">
-        <div style="font-size: 12px; color: #64748B;">Primary Sector</div>
-        <div style="font-weight: bold; font-size: 16px;">{data['sector']}</div>
-    </div>
-    <div style="margin-top: 15px;">
-        <div style="font-size: 12px; color: #64748B;">Business Activity Result</div>
-        <div style="font-weight: bold; font-size: 16px; color: {'#137333' if result.get('business_ok', True) else '#C5221F'};">
-            {'✅ Permissible' if result.get('business_ok', True) else '❌ Non-Permissible'}
-        </div>
-    </div>
-</div>
-""", unsafe_allow_html=True)
+                        bus_color = "#137333" if result.get("business_ok", True) else "#C5221F"
+                        bus_text = "✅ Permissible" if result.get("business_ok", True) else "❌ Non-Permissible"
+                        html_c3 = (
+                            '<div class="white-card">'
+                            '<div class="card-subtitle">Business Activity Screening</div>'
+                            '<div style="margin-top: 15px; padding-bottom: 10px; border-bottom: 1px solid #E2E8F0;">'
+                            '<div style="font-size: 12px; color: #64748B;">Primary Sector</div>'
+                            f'<div style="font-weight: bold; font-size: 16px;">{data["sector"]}</div>'
+                            '</div>'
+                            '<div style="margin-top: 15px;">'
+                            '<div style="font-size: 12px; color: #64748B;">Business Activity Result</div>'
+                            f'<div style="font-weight: bold; font-size: 16px; color: {bus_color};">'
+                            f'{bus_text}'
+                            '</div>'
+                            '</div>'
+                            '</div>'
+                        )
+                        st.markdown(html_c3, unsafe_allow_html=True)
                         
                     st.markdown("<br><br><br>", unsafe_allow_html=True) # เว้นที่ให้ Footer
 

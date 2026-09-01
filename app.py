@@ -3,7 +3,7 @@ from data_fetcher import get_stock_data, get_historical_prices
 from halal_engine import screen
 
 # 🌟 1. ตั้งค่าหน้าเพจให้กว้างสุด
-st.set_page_config(page_title="Qubix Halal Screener", page_icon="🕌", layout="wide", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="Halal Screener (Thai)", page_icon="🕌", layout="wide", initial_sidebar_state="collapsed")
 
 # 🌟 2. CSS สำหรับ Dark Theme Terminal & แปลง Radio เป็น Nav Bar
 st.markdown("""
@@ -13,18 +13,12 @@ st.markdown("""
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     
-    /* 🌟 เปลี่ยนหน้าตา Radio ให้เป็นปุ่ม Nav Bar แบบกดได้ */
+    /* 🌟 เปลี่ยนหน้าตา Radio ให้เป็นปุ่ม Nav Bar */
     div[data-testid="stRadio"] div[role="radiogroup"] { flex-direction: row; gap: 10px; }
-    div[data-testid="stRadio"] div[role="radio"] > div:first-child { display: none !important; } /* ซ่อนวงกลม */
+    div[data-testid="stRadio"] div[role="radio"] > div:first-child { display: none !important; }
     div[data-testid="stRadio"] div[role="radio"] {
-        background-color: #1A1F2C;
-        padding: 8px 20px;
-        border-radius: 8px;
-        margin: 0;
-        cursor: pointer;
-        transition: all 0.2s;
-        border: none !important;
-        box-shadow: none !important;
+        background-color: #1A1F2C; padding: 8px 20px; border-radius: 8px; margin: 0;
+        cursor: pointer; transition: all 0.2s; border: none !important; box-shadow: none !important;
     }
     div[data-testid="stRadio"] div[role="radio"] p { color: #8F9BBA !important; font-size: 14px; font-weight: 600; margin: 0; }
     
@@ -40,7 +34,7 @@ st.markdown("""
     .white-card { background-color: #FFFFFF; border-radius: 16px; padding: 24px; color: #121212 !important; height: 100%; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     .white-card h1, .white-card h2, .white-card h3, .white-card h4, .white-card p, .white-card span, .white-card div { color: #121212 !important; }
     .card-subtitle { font-size: 14px; color: #64748B !important; font-weight: 600; margin-bottom: 15px;}
-    .card-big-val { font-size: 36px; font-weight: bold; margin: 10px 0; }
+    .card-big-val { font-size: 32px; font-weight: bold; margin: 10px 0; }
     
     .badge-pass { background: #E6F4EA; color: #137333 !important; padding: 6px 12px; border-radius: 6px; font-size: 14px; font-weight: bold;}
     .badge-fail { background: #FCE8E6; color: #C5221F !important; padding: 6px 12px; border-radius: 6px; font-size: 14px; font-weight: bold;}
@@ -54,14 +48,14 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 🌟 3. แถบ Navigation ด้านบน (เปลี่ยนเป็นระบบคลิกได้จริง)
+# 🌟 3. แถบ Navigation ด้านบน (เมนูภาษาไทย)
 col_logo, col_nav = st.columns([2, 8])
 with col_logo:
     st.markdown("<div style='font-size: 24px; font-weight: bold; margin-top: 5px;'>🕌 HalalScreener</div>", unsafe_allow_html=True)
 with col_nav:
     nav_selection = st.radio(
         "Nav",
-        ["Dashboard", "Stocks", "Portfolio", "📖 Shariah Guide"],
+        ["แดชบอร์ด", "คลังหุ้น", "พอร์ตโฟลิโอ", "📖 กฎชะรีอะห์"],
         horizontal=True,
         label_visibility="collapsed"
     )
@@ -69,7 +63,7 @@ with col_nav:
 st.markdown("<hr style='border-color: #1A1F2C; margin: 5px 0 20px 0;'>", unsafe_allow_html=True)
 
 # 🌟 4. คอนเทนต์: หน้าคำแนะนำกฎชะรีอะห์
-if nav_selection == "📖 Shariah Guide":
+if nav_selection == "📖 กฎชะรีอะห์":
     st.markdown("## 📖 กฎหลักชะรีอะห์สำหรับการลงทุน")
     st.markdown("<p style='color: #8F9BBA; font-size: 16px;'>มาตรฐานอ้างอิงจาก AAOIFI (Accounting and Auditing Organization for Islamic Financial Institutions)</p>", unsafe_allow_html=True)
     
@@ -88,7 +82,7 @@ if nav_selection == "📖 Shariah Guide":
         <h4 style="color: #FFFFFF; margin-bottom: 10px;">2. การคัดกรองอัตราส่วนทางการเงิน (Financial Screening)</h4>
         <p style="color: #E2E8F0; font-size: 14px;">เพื่อจำกัดการมีส่วนร่วมกับ "ริบา" (ดอกเบี้ย) อย่างเข้มงวด:</p>
         <ul style="color: #8F9BBA; font-size: 14px;">
-            <li><strong>สัดส่วนหนี้สินที่มีดอกเบี้ย (Debt Ratio):</strong> ต้องน้อยกว่า 33% ของสินทรัพย์รวม</li>
+            <li><strong>สัดส่วนหนี้สิน (Debt Ratio):</strong> ต้องน้อยกว่า 33% ของสินทรัพย์รวม (เพื่อลดความเสี่ยงจากการกู้ยืม)</li>
             <li><strong>รายได้ที่ไม่บริสุทธิ์ (Interest Income):</strong> ดอกเบี้ยรับ ต้องไม่เกิน 5% ของรายได้รวม</li>
         </ul>
     </div>
@@ -104,34 +98,34 @@ if nav_selection == "📖 Shariah Guide":
     """, unsafe_allow_html=True)
     st.markdown("<br><br><br>", unsafe_allow_html=True)
 
-# 🌟 5. คอนเทนต์: หน้า Coming Soon
-elif nav_selection in ["Stocks", "Portfolio"]:
-    st.markdown(f"## 🚧 {nav_selection} (Coming Soon)")
-    st.info("หน้านี้กำลังอยู่ในระหว่างการพัฒนาครับ!")
+# 🌟 5. คอนเทนต์: หน้าที่ยังไม่เปิดใช้งาน (Coming Soon)
+elif nav_selection in ["คลังหุ้น", "พอร์ตโฟลิโอ"]:
+    st.markdown(f"## 🚧 {nav_selection} (เร็วๆ นี้)")
+    st.info("หน้านี้กำลังอยู่ในระหว่างการพัฒนา เพื่อเพิ่มฟีเจอร์ในอนาคตครับ!")
 
 # 🌟 6. คอนเทนต์: หน้า Dashboard (ระบบค้นหาหลัก)
 else:
     col_search, col_btn, _ = st.columns([3, 1, 6])
     with col_search:
-        ticker = st.text_input("Search", placeholder="Search ticker (e.g. AAPL, SPTE)", label_visibility="collapsed")
+        ticker = st.text_input("ค้นหาหุ้น", placeholder="ป้อนชื่อหุ้น (เช่น AAPL, SPTE, PTT.BK)", label_visibility="collapsed")
     with col_btn:
-        search_btn = st.button("Search")
+        search_btn = st.button("ค้นหา 🔍")
 
     if ticker or search_btn:
         if not ticker:
-            st.warning("⚠️ Please enter a ticker symbol.")
+            st.warning("⚠️ กรุณาป้อนชื่อหุ้น (Ticker) ในช่องค้นหา")
         else:
-            with st.spinner("Loading market data..."):
+            with st.spinner("กำลังดึงข้อมูลตลาด..."):
                 try:
                     data = get_stock_data(ticker.upper())
                     
                     if data is None:
-                        st.error("⚠️ Data not found.")
+                        st.error(f"⚠️ ไม่พบข้อมูลของหุ้น '{ticker.upper()}' หรือไม่มีงบการเงินในระบบ")
                     else:
                         result = screen(data)
                         
                         st.markdown(f"<h3 style='margin-bottom: 0;'>{data['name']} ({result['ticker']})</h3>", unsafe_allow_html=True)
-                        st.markdown(f"<p style='color: #8F9BBA; font-size: 14px;'>Sector: {data['sector']}</p>", unsafe_allow_html=True)
+                        st.markdown(f"<p style='color: #8F9BBA; font-size: 14px;'>หมวดหมู่ธุรกิจ: {data['sector']}</p>", unsafe_allow_html=True)
                         
                         chart_col, stats_col = st.columns([8, 2])
                         
@@ -142,15 +136,15 @@ else:
                                 
                         with stats_col:
                             html_stats = (
-                                '<div class="chart-stats-label">Market Capitalization</div>'
+                                '<div class="chart-stats-label">มูลค่าตลาด (Market Cap)</div>'
                                 f'<div class="chart-stats-val">${data["market_cap"]:,.0f}</div>'
-                                '<div class="chart-stats-label">P/E Ratio (TTM)</div>'
+                                '<div class="chart-stats-label">อัตราส่วน P/E</div>'
                                 f'<div class="chart-stats-val">{data["pe_ratio"]:.2f}</div>'
-                                '<div class="chart-stats-label">ROE</div>'
+                                '<div class="chart-stats-label">ผลตอบแทนต่อส่วนทุน (ROE)</div>'
                                 f'<div class="chart-stats-val">{data["roe"]*100:.2f}%</div>'
-                                '<div class="chart-stats-label">Dividend Yield</div>'
+                                '<div class="chart-stats-label">อัตราเงินปันผล</div>'
                                 f'<div class="chart-stats-val">{data.get("dividend_yield", 0)*100:.2f}%</div>'
-                                '<div class="chart-stats-label">Current Price</div>'
+                                '<div class="chart-stats-label">ราคาปัจจุบัน</div>'
                                 f'<div class="chart-stats-val" style="font-size: 24px; color: #FFFFFF;">${data["price"]}</div>'
                             )
                             st.markdown(html_stats, unsafe_allow_html=True)
@@ -161,16 +155,16 @@ else:
                         
                         is_pass = "PASS" in result['status']
                         badge_class = "badge-pass" if is_pass else "badge-fail"
-                        status_text = "Halal Certified" if is_pass else ("Doubtful" if "DOUBTFUL" in result['status'] else "Not Halal")
+                        status_text = "✅ ผ่านเกณฑ์ (Halal)" if is_pass else ("⚠️ ต้องสงสัย (Doubtful)" if "DOUBTFUL" in result['status'] else "❌ ไม่ผ่านเกณฑ์")
                         
                         with c1:
                             html_c1 = (
                                 '<div class="white-card">'
-                                '<div class="card-subtitle">Compliance Status</div>'
+                                '<div class="card-subtitle">สถานะความถูกต้อง (Compliance)</div>'
                                 f'<div class="card-big-val">{status_text}</div>'
-                                f'<span class="{badge_class}">AAOIFI Standards</span>'
+                                f'<span class="{badge_class}">มาตรฐาน AAOIFI</span>'
                                 '<div style="margin-top: 20px; font-size: 14px; color: #64748B;">'
-                                'Analyzed based on latest financial statements and business activities.'
+                                'วิเคราะห์โดยอ้างอิงจากงบการเงินล่าสุดและลักษณะการดำเนินธุรกิจ'
                                 '</div>'
                                 '</div>'
                             )
@@ -184,16 +178,16 @@ else:
                             
                             html_c2 = (
                                 '<div class="white-card">'
-                                '<div class="card-subtitle">Shariah Metrics (Financials)</div>'
+                                '<div class="card-subtitle">เกณฑ์ชะรีอะห์ (ทางการเงิน)</div>'
                                 '<div style="display:flex; justify-content:space-between; font-size: 14px; margin-top: 15px;">'
-                                '<span>Debt Ratio (&lt;33%)</span>'
+                                '<span>สัดส่วนหนี้สิน (&lt;33%)</span>'
                                 f'<strong>{debt_pct:.1f}% {debt_status}</strong>'
                                 '</div>'
                                 '<div style="background:#F1F5F9; height:8px; border-radius:4px; margin-top:5px; margin-bottom: 20px;">'
                                 f'<div style="width:{min(debt_pct, 100)}%; background:#3B82F6; height:8px; border-radius:4px;"></div>'
                                 '</div>'
                                 '<div style="display:flex; justify-content:space-between; font-size: 14px;">'
-                                '<span>Interest Income (&lt;5%)</span>'
+                                '<span>รายได้ดอกเบี้ย (&lt;5%)</span>'
                                 f'<strong>{int_pct:.1f}% {int_status}</strong>'
                                 '</div>'
                                 '<div style="background:#F1F5F9; height:8px; border-radius:4px; margin-top:5px;">'
@@ -205,16 +199,16 @@ else:
                             
                         with c3:
                             bus_color = "#137333" if result.get("business_ok", True) else "#C5221F"
-                            bus_text = "✅ Permissible" if result.get("business_ok", True) else "❌ Non-Permissible"
+                            bus_text = "✅ อนุญาต (Permissible)" if result.get("business_ok", True) else "❌ ไม่อนุญาต (Non-Permissible)"
                             html_c3 = (
                                 '<div class="white-card">'
-                                '<div class="card-subtitle">Business Activity Screening</div>'
+                                '<div class="card-subtitle">การคัดกรองลักษณะธุรกิจ</div>'
                                 '<div style="margin-top: 15px; padding-bottom: 10px; border-bottom: 1px solid #E2E8F0;">'
-                                '<div style="font-size: 12px; color: #64748B;">Primary Sector</div>'
+                                '<div style="font-size: 12px; color: #64748B;">อุตสาหกรรมหลัก (Primary Sector)</div>'
                                 f'<div style="font-weight: bold; font-size: 16px;">{data["sector"]}</div>'
                                 '</div>'
                                 '<div style="margin-top: 15px;">'
-                                '<div style="font-size: 12px; color: #64748B;">Business Activity Result</div>'
+                                '<div style="font-size: 12px; color: #64748B;">ผลการประเมินธุรกิจ</div>'
                                 f'<div style="font-weight: bold; font-size: 16px; color: {bus_color};">'
                                 f'{bus_text}'
                                 '</div>'
@@ -226,11 +220,11 @@ else:
                         st.markdown("<br><br><br>", unsafe_allow_html=True)
 
                 except Exception as e:
-                    st.error(f"⚠️ System Error: ({e})")
+                    st.error(f"⚠️ ระบบขัดข้อง: ({e})")
 
 # 🌟 7. Footer ลายเซ็นนักพัฒนา
 st.markdown("""
 <div class="custom-footer">
-    Developed by <strong>Arfam Kasa</strong> | Professional Halal Stock Screener
+    พัฒนาโดย <strong>Arfam Kasa</strong> | ระบบคัดกรองหุ้นฮาลาล (Halal Stock Screener)
 </div>
 """, unsafe_allow_html=True)

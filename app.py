@@ -2,197 +2,201 @@ import streamlit as st
 from data_fetcher import get_stock_data, get_historical_prices 
 from halal_engine import screen
 
-st.set_page_config(page_title="Shariah Screener", page_icon="🕌", layout="wide", initial_sidebar_state="collapsed")
+# 🌟 1. ตั้งค่าหน้าเพจให้กว้างสุด
+st.set_page_config(page_title="Qubix Halal Screener", page_icon="🕌", layout="wide", initial_sidebar_state="collapsed")
 
-# CSS สไตล์ Neumorphism, Input, Button และ Footer
+# 🌟 2. CSS สำหรับ Dark Theme Terminal & White Cards
 st.markdown("""
 <style>
-    /* สีพื้นหลังหลัก */
+    /* พื้นหลังหลักสีดำ/น้ำเงินเข้มแบบ Terminal */
     .stApp, .block-container {
-        background-color: #e0e5ec !important;
+        background-color: #0B0E14 !important;
+        color: #FFFFFF !important;
     }
     
-    h1, h2, h3, h4, p, span, div, label {
-        color: #4a4a4a !important;
-    }
+    /* บังคับสีตัวอักษรพื้นฐาน */
+    h1, h2, h3, h4, p, span, label { color: #FFFFFF; }
 
-    .neumorphic-card {
-        background-color: #e0e5ec;
-        border-radius: 20px;
-        padding: 25px;
-        margin-bottom: 20px;
-        box-shadow: 9px 9px 16px rgb(163,177,198,0.6), 
-                   -9px -9px 16px rgba(255,255,255, 0.5);
-    }
-    
-    .neumorphic-inset {
-        background-color: #e0e5ec;
-        border-radius: 20px;
-        padding: 20px;
-        box-shadow: inset 6px 6px 10px 0 rgba(163,177,198, 0.7),
-                    inset -6px -6px 10px 0 rgba(255,255,255, 0.8);
-    }
-
-    .card-title { font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #7a7a7a !important; }
-    .card-value { font-size: 1.8rem; font-weight: 700; margin: 10px 0; color: #2d3748 !important; }
-    
-    /* 🌟 แต่งช่องกรอกข้อมูลให้ยุบลงไปแบบ Neumorphism */
-    div[data-testid="stTextInput"] input {
-        background-color: #e0e5ec !important;
-        color: #4a4a4a !important;
-        border: none !important;
-        border-radius: 12px !important;
-        box-shadow: inset 5px 5px 10px rgba(163,177,198,0.6), 
-                   inset -5px -5px 10px rgba(255,255,255, 0.5) !important;
-        padding: 10px 15px !important;
-    }
-
-    /* 🌟 แต่งปุ่มกดให้นูนขึ้นมา และยุบเวลากด */
-    div[data-testid="stButton"] button {
-        background-color: #e0e5ec !important;
-        color: #7a7a7a !important;
-        font-weight: 700 !important;
-        border: none !important;
-        border-radius: 12px !important;
-        height: 42px !important;
-        width: 100% !important;
-        box-shadow: 5px 5px 10px rgba(163,177,198,0.6), 
-                   -5px -5px 10px rgba(255,255,255, 0.5) !important;
-        transition: all 0.2s ease-in-out !important;
-    }
-    div[data-testid="stButton"] button:hover, 
-    div[data-testid="stButton"] button:active {
-        color: #2d3748 !important;
-        box-shadow: inset 4px 4px 8px rgba(163,177,198,0.6), 
-                   inset -4px -4px 8px rgba(255,255,255, 0.5) !important;
-    }
-
+    /* ซ่อน UI ที่ไม่จำเป็น */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
 
+    /* แถบเมนูด้านบน (Mock) */
+    .top-nav { display: flex; gap: 10px; margin-bottom: 25px; align-items: center; }
+    .nav-btn { background-color: #1A1F2C; padding: 8px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; color: #8F9BBA; }
+    .nav-btn.active { background-color: #FFFFFF; color: #0B0E14; }
+
+    /* โซนข้อมูลด้านซ้ายของกราฟ */
+    .chart-stats-label { font-size: 12px; color: #64748B; margin-bottom: 2px; margin-top: 10px; }
+    .chart-stats-val { font-size: 14px; font-weight: bold; color: #E2E8F0; }
+
+    /* White Cards สำหรับข้อมูลด้านล่าง */
+    .white-card {
+        background-color: #FFFFFF;
+        border-radius: 16px;
+        padding: 24px;
+        color: #121212 !important;
+        height: 100%;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    /* บังคับตัวอักษรในการ์ดขาวให้เป็นสีเข้ม */
+    .white-card h1, .white-card h2, .white-card h3, .white-card h4, .white-card p, .white-card span, .white-card div { color: #121212 !important; }
+    .card-subtitle { font-size: 14px; color: #64748B !important; font-weight: 600; margin-bottom: 15px;}
+    .card-big-val { font-size: 36px; font-weight: bold; margin: 10px 0; }
+    
+    /* Badge สถานะ */
+    .badge-pass { background: #E6F4EA; color: #137333 !important; padding: 6px 12px; border-radius: 6px; font-size: 14px; font-weight: bold;}
+    .badge-fail { background: #FCE8E6; color: #C5221F !important; padding: 6px 12px; border-radius: 6px; font-size: 14px; font-weight: bold;}
+
+    /* Custom Input & Button */
+    div[data-testid="stTextInput"] input { background-color: #1A1F2C !important; color: white !important; border: 1px solid #2D3748 !important; border-radius: 8px !important; }
+    div[data-testid="stButton"] button { background-color: #FFFFFF !important; color: #0B0E14 !important; font-weight: bold !important; border-radius: 8px !important; height: 42px !important; width: 100%; border: none !important;}
+    div[data-testid="stButton"] button:hover { background-color: #E2E8F0 !important; color: #0B0E14 !important; }
+
+    /* Footer - Arfam Kasa */
     .custom-footer {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background-color: #e0e5ec;
-        text-align: center;
-        padding: 15px;
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #7a7a7a !important;
-        box-shadow: 0px -5px 15px rgba(163,177,198,0.3);
-        z-index: 100;
+        position: fixed; bottom: 0; left: 0; width: 100%;
+        background-color: #0B0E14; text-align: center; padding: 15px;
+        font-size: 0.9rem; font-weight: 500; color: #64748B !important;
+        border-top: 1px solid #1A1F2C; z-index: 100;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# 🌟 แบ่งหน้าจอเป็น 3 คอลัมน์ (หัวข้อ, ช่องค้นหา, ปุ่มกด)
-col_title, col_search, col_btn = st.columns([5, 3, 1])
-with col_title:
-    st.markdown("<h1>🕌 Shariah Screener</h1>", unsafe_allow_html=True)
-    st.markdown("<p>Analyze global equities & ETFs for Shariah compliance.</p>", unsafe_allow_html=True)
+# 🌟 3. แถบ Navigation ด้านบน (ตามรูปอ้างอิง)
+st.markdown("""
+<div class="top-nav">
+    <div style="font-size: 24px; font-weight: bold; margin-right: 20px;">🕌 HalalScreener</div>
+    <div class="nav-btn active">Dashboard</div>
+    <div class="nav-btn">Stocks</div>
+    <div class="nav-btn">Portfolio</div>
+</div>
+""", unsafe_allow_html=True)
+
+# ช่องค้นหา
+col_search, col_btn, _ = st.columns([3, 1, 6])
 with col_search:
-    st.write("") 
-    ticker = st.text_input("Search Asset", placeholder="Enter Ticker (e.g., AAPL, SPTE)", label_visibility="collapsed")
+    ticker = st.text_input("Search", placeholder="Search ticker (e.g. AAPL, SPTE)", label_visibility="collapsed")
 with col_btn:
-    st.write("") 
-    search_btn = st.button("Search 🔍")
+    search_btn = st.button("Search")
 
-st.markdown("<br>", unsafe_allow_html=True)
+st.markdown("<hr style='border-color: #1A1F2C; margin: 15px 0;'>", unsafe_allow_html=True)
 
-# 🌟 เงื่อนไข: ทำงานเมื่อมีการพิมพ์ข้อความ หรือ มีการกดปุ่ม
 if ticker or search_btn:
     if not ticker:
-        st.warning("⚠️ Please enter a ticker symbol first.")
+        st.warning("⚠️ Please enter a ticker symbol.")
     else:
-        with st.spinner("Fetching market data..."):
+        with st.spinner("Loading market data..."):
             try:
                 data = get_stock_data(ticker.upper())
                 
                 if data is None:
-                    st.warning(f"⚠️ Data not found for '{ticker.upper()}'.")
+                    st.error("⚠️ Data not found.")
                 else:
                     result = screen(data)
                     
-                    top_col1, top_col2 = st.columns([7, 3])
+                    # 🌟 4. โซนด้านบน (Dark Mode) - กราฟและสถิติ
+                    st.markdown(f"<h3 style='margin-bottom: 0;'>{data['name']} ({result['ticker']})</h3>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='color: #8F9BBA; font-size: 14px;'>Sector: {data['sector']}</p>", unsafe_allow_html=True)
                     
-                    with top_col1:
-                        st.markdown(f"<h3>{data['name']} ({result['ticker']})</h3>", unsafe_allow_html=True)
-                        st.markdown(f"<p>Sector: {data['sector']} | Price: ${data['price']}</p>", unsafe_allow_html=True)
-                        
+                    chart_col, stats_col = st.columns([8, 2])
+                    
+                    with chart_col:
                         history_data = get_historical_prices(ticker.upper(), period="1y")
                         if history_data is not None:
-                            st.line_chart(history_data, height=280)
-
-                    with top_col2:
-                        st.write("") 
-                        status_color = "🟢 PASS" if "PASS" in result['status'] else ("🟡 DOUBTFUL" if "DOUBTFUL" in result['status'] else "🔴 FAIL")
+                            # Streamlit จะดึงสีธีมระบบมาใช้ แนะนำให้เปิด Dark mode ใน Settings ของ Streamlit
+                            st.line_chart(history_data, height=350)
+                            
+                    with stats_col:
+                        # สถิติด้านข้างกราฟ (เหมือนด้านซ้ายในรูปอ้างอิง แต่ย้ายมาขวาเพื่อให้กราฟเด่น)
                         st.markdown(f"""
-                        <div class="neumorphic-inset" style="height: 280px; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
-                            <div class="card-title">Compliance Status</div>
-                            <div class="card-value" style="font-size: 2.2rem;">{status_color}</div>
-                            <p style="font-size: 0.85rem; margin-top: 15px; font-weight: 500;">
-                                AAOIFI benchmarks applied.
-                            </p>
-                        </div>
+                        <div class="chart-stats-label">Market Capitalization</div>
+                        <div class="chart-stats-val">${data['market_cap']:,.0f}</div>
+                        
+                        <div class="chart-stats-label">P/E Ratio (TTM)</div>
+                        <div class="chart-stats-val">{data['pe_ratio']:.2f}</div>
+                        
+                        <div class="chart-stats-label">ROE</div>
+                        <div class="chart-stats-val">{data['roe']*100:.2f}%</div>
+                        
+                        <div class="chart-stats-label">Dividend Yield</div>
+                        <div class="chart-stats-val">{data.get('dividend_yield', 0)*100:.2f}%</div>
+                        
+                        <div class="chart-stats-label">Current Price</div>
+                        <div class="chart-stats-val" style="font-size: 24px; color: #FFFFFF;">${data['price']}</div>
                         """, unsafe_allow_html=True)
 
-                    st.markdown("<h3>Shariah Metrics</h3>", unsafe_allow_html=True)
+                    st.write("")
+                    
+                    # 🌟 5. โซนด้านล่าง (White Cards) - แบ่ง 3 คอลัมน์
                     c1, c2, c3 = st.columns(3)
                     
-                    is_etf_text = "ETF (Check Holdings)" if data.get("is_etf") else "Passed"
+                    is_pass = "PASS" in result['status']
+                    badge_class = "badge-pass" if is_pass else "badge-fail"
+                    status_text = "Halal Certified" if is_pass else ("Doubtful" if "DOUBTFUL" in result['status'] else "Not Halal")
                     
                     with c1:
-                        debt_val = f"{data['debt_ratio']*100:.1f}%"
                         st.markdown(f"""
-                        <div class="neumorphic-card">
-                            <div class="card-title">Debt Ratio</div>
-                            <div class="card-value">{debt_val}</div>
-                            <p style="font-weight: 500;">Target: < 33.0% {'✅' if result.get('debt_ok', True) else '❌'}</p>
+                        <div class="white-card">
+                            <div class="card-subtitle">Compliance Status</div>
+                            <div class="card-big-val">{status_text}</div>
+                            <span class="{badge_class}">AAOIFI Standards</span>
+                            <div style="margin-top: 20px; font-size: 14px; color: #64748B;">
+                                Analyzed based on latest financial statements and business activities.
+                            </div>
                         </div>
                         """, unsafe_allow_html=True)
-
+                        
                     with c2:
-                        int_val = f"{data['interest_ratio']*100:.1f}%"
+                        debt_pct = data['debt_ratio']*100
+                        int_pct = data['interest_ratio']*100
                         st.markdown(f"""
-                        <div class="neumorphic-card">
-                            <div class="card-title">Interest Income</div>
-                            <div class="card-value">{int_val}</div>
-                            <p style="font-weight: 500;">Target: < 5.0% {'✅' if result.get('interest_ok', True) else '❌'}</p>
+                        <div class="white-card">
+                            <div class="card-subtitle">Shariah Metrics (Financials)</div>
+                            
+                            <div style="display:flex; justify-content:space-between; font-size: 14px; margin-top: 15px;">
+                                <span>Debt Ratio (<33%)</span>
+                                <strong>{debt_pct:.1f}% {'✅' if result.get('debt_ok', True) else '❌'}</strong>
+                            </div>
+                            <div style="background:#F1F5F9; height:8px; border-radius:4px; margin-top:5px; margin-bottom: 20px;">
+                                <div style="width:{min(debt_pct, 100)}%; background:#3B82F6; height:8px; border-radius:4px;"></div>
+                            </div>
+                            
+                            <div style="display:flex; justify-content:space-between; font-size: 14px;">
+                                <span>Interest Income (<5%)</span>
+                                <strong>{int_pct:.1f}% {'✅' if result.get('interest_ok', True) else '❌'}</strong>
+                            </div>
+                            <div style="background:#F1F5F9; height:8px; border-radius:4px; margin-top:5px;">
+                                <div style="width:{min(int_pct*5, 100)}%; background:#8B5CF6; height:8px; border-radius:4px;"></div>
+                            </div>
                         </div>
                         """, unsafe_allow_html=True)
-
+                        
                     with c3:
-                        sector_val = data['sector'][:15] + "..." if len(data['sector']) > 15 else data['sector']
                         st.markdown(f"""
-                        <div class="neumorphic-card">
-                            <div class="card-title">Business Sector</div>
-                            <div class="card-value">{sector_val}</div>
-                            <p style="font-weight: 500;">{is_etf_text if data.get('is_etf') else 'Permissible'} {'✅' if result.get('business_ok', True) else '❌'}</p>
+                        <div class="white-card">
+                            <div class="card-subtitle">Business Activity Screening</div>
+                            <div style="margin-top: 15px; padding-bottom: 10px; border-bottom: 1px solid #E2E8F0;">
+                                <div style="font-size: 12px; color: #64748B;">Primary Sector</div>
+                                <div style="font-weight: bold; font-size: 16px;">{data['sector']}</div>
+                            </div>
+                            <div style="margin-top: 15px;">
+                                <div style="font-size: 12px; color: #64748B;">Business Activity Result</div>
+                                <div style="font-weight: bold; font-size: 16px; color: {'#137333' if result.get('business_ok', True) else '#C5221F'};">
+                                    {'✅ Permissible' if result.get('business_ok', True) else '❌ Non-Permissible'}
+                                </div>
+                            </div>
                         </div>
                         """, unsafe_allow_html=True)
-
-                    st.markdown("<h3>Financial Fundamentals</h3>", unsafe_allow_html=True)
-                    f1, f2, f3, f4 = st.columns(4)
-                    f1.metric("Market Cap", f"${data['market_cap']:,.0f}" if data['market_cap'] else "N/A")
-                    f2.metric("P/E Ratio", f"{data['pe_ratio']:.2f}" if data['pe_ratio'] else "N/A")
-                    f3.metric("ROE", f"{data['roe']*100:.2f}%" if data['roe'] else "N/A")
-                    f4.metric("Dividend Yield", f"{data.get('dividend_yield', 0)*100:.2f}%" if data.get('dividend_yield') else "N/A")
-                    st.markdown("<br><br>", unsafe_allow_html=True)
+                        
+                    st.markdown("<br><br><br>", unsafe_allow_html=True) # เว้นที่ให้ Footer
 
             except Exception as e:
                 st.error(f"⚠️ System Error: ({e})")
-else:
-    st.markdown("""
-    <div class="neumorphic-inset" style="text-align: center; margin-top: 50px; padding: 40px;">
-        <h3 style="color: #7a7a7a !important;">Trending Halal Assets</h3>
-        <p style="font-weight: 500;">💡 Type a ticker symbol in the search bar above and press Search to generate a report.</p>
-    </div>
-    """, unsafe_allow_html=True)
 
+# 🌟 6. Footer ลายเซ็นนักพัฒนา
 st.markdown("""
 <div class="custom-footer">
-    Developed by <strong>Arfam Kasa</strong> | Halal Stock Screener System
+    Developed by <strong>Arfam Kasa</strong> | Professional Halal Stock Screener
 </div>
 """, unsafe_allow_html=True)

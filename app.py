@@ -6,22 +6,41 @@ from halal_engine import screen
 st.set_page_config(page_title="Shariah Screener Pro", page_icon="🕌", layout="wide", initial_sidebar_state="expanded")
 
 # 2. Custom CSS for Modern FinTech UI (Pastel Cards & Dark Sidebar)
+# 2. Custom CSS for Modern FinTech UI (Pastel Cards & White Background)
 st.markdown("""
 <style>
-    /* Main Background */
-    .block-container { padding-top: 2rem; padding-bottom: 2rem; }
+    /* บังคับพื้นหลังด้านนอกสุดให้เป็นสีเทาอ่อนมากแบบแอปพรีเมียม */
+    .stApp {
+        background-color: #F4F7FE;
+    }
+    
+    /* สร้างกรอบสีขาวล้วนตรงกลางให้เหมือนหน้าต่าง Dashboard */
+    .block-container { 
+        background-color: #FFFFFF;
+        border-radius: 24px;
+        padding: 3rem;
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0px 10px 30px rgba(112, 144, 176, 0.12);
+        max-width: 95%;
+    }
     
     /* Custom Colored Cards */
-    .dash-card { border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); font-family: 'Inter', sans-serif; }
-    .card-blue { background-color: #EBF4FF; color: #1E3A8A; border: 1px solid #D1E8FF; }
-    .card-purple { background-color: #F3E8FF; color: #4C1D95; border: 1px solid #E9D5FF; }
-    .card-green { background-color: #DCFCE7; color: #14532D; border: 1px solid #BBF7D0; }
-    .card-dark { background-color: #121212; color: #FFFFFF; border: 1px solid #2D2D2D; }
+    .dash-card { border-radius: 16px; padding: 20px; margin-bottom: 15px; font-family: 'Inter', sans-serif; transition: transform 0.2s; }
+    .dash-card:hover { transform: translateY(-3px); }
+    
+    .card-blue { background-color: #F4F7FE; color: #2B3674; }
+    .card-purple { background-color: #F3E8FF; color: #4C1D95; }
+    .card-green { background-color: #DCFCE7; color: #14532D; }
+    .card-dark { background-color: #1B254B; color: #FFFFFF; }
     
     /* Typography inside cards */
-    .card-title { font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8; }
+    .card-title { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8; }
     .card-value { font-size: 1.8rem; font-weight: 700; margin: 5px 0; }
     .card-sub { font-size: 0.85rem; font-weight: 500; opacity: 0.9; }
+    
+    /* ซ่อนลิงก์ด้านบนของ Streamlit */
+    #MainMenu {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 

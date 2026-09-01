@@ -2,143 +2,143 @@ import streamlit as st
 from data_fetcher import get_stock_data, get_historical_prices 
 from halal_engine import screen
 
-st.set_page_config(page_title="Halal Screener", page_icon="🕌", layout="wide")
+# 1. Page Config (Wide layout for Dashboard feel)
+st.set_page_config(page_title="Shariah Screener Pro", page_icon="🕌", layout="wide", initial_sidebar_state="expanded")
 
+# 2. Custom CSS for Modern FinTech UI (Pastel Cards & Dark Sidebar)
 st.markdown("""
 <style>
-div[data-testid="metric-container"] {
-    background-color: rgba(128, 128, 128, 0.1);
-    border: 1px solid rgba(128, 128, 128, 0.2);
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 2px 2px 10px rgba(0,0,0,0.05);
-}
+    /* Main Background */
+    .block-container { padding-top: 2rem; padding-bottom: 2rem; }
+    
+    /* Custom Colored Cards */
+    .dash-card { border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); font-family: 'Inter', sans-serif; }
+    .card-blue { background-color: #EBF4FF; color: #1E3A8A; border: 1px solid #D1E8FF; }
+    .card-purple { background-color: #F3E8FF; color: #4C1D95; border: 1px solid #E9D5FF; }
+    .card-green { background-color: #DCFCE7; color: #14532D; border: 1px solid #BBF7D0; }
+    .card-dark { background-color: #121212; color: #FFFFFF; border: 1px solid #2D2D2D; }
+    
+    /* Typography inside cards */
+    .card-title { font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8; }
+    .card-value { font-size: 1.8rem; font-weight: 700; margin: 5px 0; }
+    .card-sub { font-size: 0.85rem; font-weight: 500; opacity: 0.9; }
 </style>
 """, unsafe_allow_html=True)
 
-st.title("🕌 Halal Stock Screener")
-st.caption("ตรวจสอบหุ้นและ ETF ตามหลักชะรีอะห์ (AAOIFI Standard)")
+# 3. Sidebar (Navigation mimicking the left panel)
+with st.sidebar:
+    st.markdown("### 🕌 ShariahPro")
+    st.markdown("---")
+    st.button("📊 Overview", use_container_width=True)
+    st.button("⭐ Watchlist", use_container_width=True)
+    st.button("📈 Market Trends", use_container_width=True)
+    st.button("⚙️ Settings", use_container_width=True)
+    st.markdown("---")
+    st.caption("AAOIFI Standards Applied")
 
-with st.expander("📖 เกณฑ์มาตรฐานที่ใช้วิเคราะห์"):
-    st.markdown("""
-    ### 🕌 เกณฑ์ Halal (AAOIFI)
-    | เกณฑ์ | ค่าที่ดี | ค่าสูงสุด | หมายเหตุ |
-    |---|---|---|---|
-    | Debt Ratio | < 20% | < 33% | หนี้ต่อสินทรัพย์รวม |
-    | Interest Income | < 2% | < 5% | รายได้ดอกเบี้ยต่อรายได้รวม |
-    ### 📊 เกณฑ์ Valuation
-    | ตัวชี้วัด | ค่าที่ดี | ระวัง | หมายเหตุ |
-    |---|---|---|---|
-    | P/E Ratio | 10-20x | > 30x | ยิ่งต่ำยิ่งถูก |
-    | P/B Ratio | < 1-3x | > 5x | ราคาเทียบมูลค่าบัญชี |
-    | EPS | บวกและเติบโต | ติดลบ | กำไรต่อหุ้น |
-    """)
-
-col_search, col_btn = st.columns([4, 1])
+# 4. Top Header & Search Bar
+col_title, col_search = st.columns([2, 1])
+with col_title:
+    st.title("Market Overview")
+    st.markdown("Analyze global equities & ETFs for Shariah compliance.")
 with col_search:
-    ticker = st.text_input("ป้อน Ticker (พิมพ์เสร็จแล้วกด Enter ได้เลย)", placeholder="เช่น NVDA, AAPL, SPTE, PTT.BK", label_visibility="collapsed")
-with col_btn:
-    search_btn = st.button("ตรวจสอบ ↗", use_container_width=True)
+    st.write("") # Spacing
+    ticker = st.text_input("Search Asset", placeholder="Enter Ticker (e.g., AAPL, SPTE, PTT.BK)", label_visibility="collapsed")
 
-if ticker or search_btn:
-    with st.spinner("กำลังวิเคราะห์ข้อมูล..."):
+st.divider()
+
+# 5. Main Dashboard Logic
+if ticker:
+    with st.spinner("Fetching market data..."):
         try:
             data = get_stock_data(ticker.upper())
             
             if data is None:
-                st.warning(f"⚠️ ไม่พบข้อมูลของ '{ticker.upper()}' กรุณาตรวจสอบชื่อ Ticker อีกครั้งครับ")
+                st.warning(f"⚠️ Data not found for '{ticker.upper()}'. Please verify the ticker symbol.")
             else:
                 result = screen(data)
-
-                st.header(f"{result['ticker']} — {data['name']}")
                 
-                if "PASS" in result['status']:
-                    st.success(f"**สถานะ:** {result['status']}")
-                elif "DOUBTFUL" in result['status']:
-                    st.warning(f"**สถานะ:** {result['status']}")
-                else:
-                    st.error(f"**สถานะ:** {result['status']}")
-
-                # ==========================================
-                # 🌟 ส่วนที่เพิ่มใหม่: ตรวจสอบและแสดงสาเหตุที่ไม่ผ่านเกณฑ์
-                if "PASS" not in result['status']:
-                    reasons = []
+                # --- TOP SECTION: Chart & Status Card ---
+                top_col1, top_col2 = st.columns([7, 3])
+                
+                with top_col1:
+                    st.subheader(f"{data['name']} ({result['ticker']})")
+                    st.caption(f"Sector: {data['sector']} | Price: ${data['price']}")
                     
-                    # ถ้าเป็น ETF แล้วไม่ผ่าน
-                    if data.get("is_etf"):
-                        reasons.append("- ⚠️ เป็นกองทุน ETF ทั่วไปที่ไม่ได้ระบุว่าเป็น Sharia-compliant (ต้องตรวจสอบหุ้นในกองทุนเพิ่มเติมด้วยตัวเอง)")
-                    # ถ้าเป็นหุ้นปกติ แล้วไม่ผ่าน
-                    else:
-                        if not result.get('debt_ok'):
-                            reasons.append(f"- ❌ **หนี้สิน (Debt Ratio):** สูงเกิน 33% (ปัจจุบันอยู่ที่ {data['debt_ratio']*100:.1f}%)")
-                        if not result.get('interest_ok'):
-                            reasons.append(f"- ❌ **รายได้จากดอกเบี้ย (Interest Ratio):** สูงเกิน 5% (ปัจจุบันอยู่ที่ {data['interest_ratio']*100:.1f}%)")
-                        if not result.get('sector_ok'):
-                            reasons.append(f"- ❌ **หมวดหมู่ธุรกิจ (Sector):** อยู่ในกลุ่มต้องห้าม ({data['sector']})")
-                        if not result.get('business_ok'):
-                            reasons.append(f"- ❌ **ลักษณะธุรกิจ:** มีคำอธิบายเกี่ยวข้องกับสิ่งต้องห้าม (เช่น ธุรกิจการเงิน, ยาสูบ, แอลกอฮอล์, อาวุธ ฯลฯ)")
-                    
-                    if reasons:
-                        st.error("**สาเหตุที่ทำให้ไม่ผ่านเกณฑ์:**\n" + "\n".join(reasons))
-                # ==========================================
-
-                st.divider()
-
-                tab1, tab2, tab3 = st.tabs(["📈 ภาพรวม & กราฟ", "🕌 เกณฑ์ Halal", "📊 งบการเงิน & มูลค่า"])
-
-                with tab1:
-                    col1, col2, col3 = st.columns(3)
-                    col1.metric("ราคาปัจจุบัน", f"${data['price']}" if data['price'] else "N/A")
-                    col2.metric("Market Cap", f"${data['market_cap']:,.0f}" if data['market_cap'] else "N/A")
-                    col3.metric("หมวดหมู่ธุรกิจ (Sector)", data['sector'])
-                    
-                    st.markdown("### กราฟราคาย้อนหลัง")
-                    selected_period = st.radio(
-                        "เลือกช่วงเวลา:",
-                        options=["1mo", "6mo", "1y", "5y", "max"],
-                        format_func=lambda x: {"1mo": "1 เดือน", "6mo": "6 เดือน", "1y": "1 ปี", "5y": "5 ปี", "max": "ตั้งแต่เข้าตลาด"}[x],
-                        horizontal=True
-                    )
-                    
-                    history_data = get_historical_prices(ticker.upper(), period=selected_period)
+                    history_data = get_historical_prices(ticker.upper(), period="1y")
                     if history_data is not None:
-                        st.line_chart(history_data)
+                        st.line_chart(history_data, height=280)
                     else:
-                        st.info("ℹ️ ไม่มีข้อมูลกราฟราคาย้อนหลังสำหรับช่วงเวลานี้")
+                        st.info("Chart data unavailable.")
 
-                with tab2:
-                    c1, c2, c3 = st.columns(3)
-                    c1.metric("Debt Ratio", f"{data['debt_ratio']*100:.1f}%",
-                              delta="ผ่าน ✅" if result.get('debt_ok', True) else "ไม่ผ่าน ❌")
-                    c2.metric("Interest Ratio", f"{data['interest_ratio']*100:.1f}%",
-                              delta="ผ่าน ✅" if result.get('interest_ok', True) else "ไม่ผ่าน ❌")
-                    c3.metric("Business Sector", "ผ่าน ✅" if result.get('business_ok', True) else "ไม่ผ่าน ❌")
+                with top_col2:
+                    st.write("") # Alignment spacing
+                    st.write("")
+                    # Dark Promo-style Card for Status
+                    status_color = "🟢 PASS" if "PASS" in result['status'] else ("🟡 DOUBTFUL" if "DOUBTFUL" in result['status'] else "🔴 FAIL")
+                    st.markdown(f"""
+                    <div class="dash-card card-dark" style="height: 280px; display:flex; flex-direction:column; justify-content:center;">
+                        <div class="card-title">Compliance Status</div>
+                        <div class="card-value" style="font-size: 2.2rem;">{status_color}</div>
+                        <p style="font-size: 0.9rem; margin-top: 15px; color: #A0AEC0;">
+                            Analyzed using AAOIFI benchmarks. Debt < 33%, Interest < 5%, and permissible business activities.
+                        </p>
+                    </div>
+                    """, unsafe_allow_html=True)
 
-                    st.info(f"""
-                    **📌 บทวิเคราะห์ชะรีอะห์เบื้องต้น**
-                    - **หนี้สิน (Debt Ratio):** ควร < 33% (เกณฑ์ AAOIFI) | ปัจจุบันอยู่ที่ {data['debt_ratio']*100:.1f}%
-                    - **รายได้ดอกเบี้ย (Interest Ratio):** ควร < 5% | ปัจจุบันอยู่ที่ {data['interest_ratio']*100:.1f}%
-                    - **ธุรกิจหลัก:** {data['description'][:300]}...
-                    """)
+                # --- MIDDLE SECTION: Shariah Criteria (Colored Cards) ---
+                st.markdown("### Shariah Metrics")
+                c1, c2, c3 = st.columns(3)
+                
+                is_etf_text = "ETF (Check Holdings)" if data.get("is_etf") else "Passed"
+                
+                with c1:
+                    debt_val = f"{data['debt_ratio']*100:.1f}%"
+                    debt_sub = "Target: < 33.0%"
+                    st.markdown(f"""
+                    <div class="dash-card card-blue">
+                        <div class="card-title">Debt Ratio</div>
+                        <div class="card-value">{debt_val}</div>
+                        <div class="card-sub">{debt_sub} {'✅' if result.get('debt_ok', True) else '❌'}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
-                with tab3:
-                    st.markdown("#### 📊 มูลค่าหุ้น (Valuation)")
-                    v1, v2, v3 = st.columns(3)
-                    pe = data['pe_ratio']
-                    pb = data['pb_ratio']
-                    eps = data['eps']
-                    v1.metric("P/E Ratio", f"{pe:.1f}x" if pe else "N/A")
-                    v2.metric("P/B Ratio", f"{pb:.1f}x" if pb else "N/A")
-                    v3.metric("EPS", f"${eps:.2f}" if eps else "N/A")
+                with c2:
+                    int_val = f"{data['interest_ratio']*100:.1f}%"
+                    int_sub = "Target: < 5.0%"
+                    st.markdown(f"""
+                    <div class="dash-card card-purple">
+                        <div class="card-title">Interest Income</div>
+                        <div class="card-value">{int_val}</div>
+                        <div class="card-sub">{int_sub} {'✅' if result.get('interest_ok', True) else '❌'}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
-                    st.markdown("#### 💰 ผลประกอบการ (Profitability)")
-                    p1, p2, p3 = st.columns(3)
-                    roe = data['roe']
-                    margin = data['net_margin']
-                    div_yield = data.get('dividend_yield')
-                    p1.metric("ROE", f"{roe*100:.1f}%")
-                    p2.metric("Net Margin", f"{margin*100:.1f}%")
-                    p3.metric("Dividend Yield", f"{div_yield*100:.1f}%" if div_yield else "ไม่มีปันผล")
+                with c3:
+                    sector_val = data['sector'][:15] + "..." if len(data['sector']) > 15 else data['sector']
+                    st.markdown(f"""
+                    <div class="dash-card card-green">
+                        <div class="card-title">Business Sector</div>
+                        <div class="card-value">{sector_val}</div>
+                        <div class="card-sub">{is_etf_text if data.get('is_etf') else 'Permissible'} {'✅' if result.get('business_ok', True) else '❌'}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                # Show failure reasons if any
+                if "PASS" not in result['status']:
+                    st.error("**Non-Compliance Flags:** Please review debt, interest, or sector violations.")
+
+                # --- BOTTOM SECTION: Financial Fundamentals ---
+                st.markdown("### Financial Fundamentals")
+                f1, f2, f3, f4 = st.columns(4)
+                f1.metric("Market Cap", f"${data['market_cap']:,.0f}" if data['market_cap'] else "N/A")
+                f2.metric("P/E Ratio", f"{data['pe_ratio']:.2f}" if data['pe_ratio'] else "N/A")
+                f3.metric("ROE (Return on Equity)", f"{data['roe']*100:.2f}%" if data['roe'] else "N/A")
+                f4.metric("Dividend Yield", f"{data.get('dividend_yield', 0)*100:.2f}%" if data.get('dividend_yield') else "N/A")
 
         except Exception as e:
-            st.error(f"⚠️ ระบบขัดข้อง: ไม่สามารถประมวลผลข้อมูลได้ในขณะนี้ ({e})")
+            st.error(f"⚠️ System Error: Unable to process data at this time. ({e})")
+else:
+    # Default state when no ticker is searched (Mimicking the bottom table in your reference)
+    st.markdown("### Trending Halal Assets")
+    st.info("💡 Type a ticker symbol in the search bar above (e.g., AAPL, SPTE) to generate a full Shariah compliance report.")

@@ -146,31 +146,26 @@ if ticker or search_btn:
 </div>
 """, unsafe_allow_html=True)
                         
-                    with c2:
+                   with c2:
                         debt_pct = data['debt_ratio']*100
                         int_pct = data['interest_ratio']*100
-                        st.markdown(f"""
-<div class="white-card">
-    <div class="card-subtitle">Shariah Metrics (Financials)</div>
-    
-    <div style="display:flex; justify-content:space-between; font-size: 14px; margin-top: 15px;">
-        <span>Debt Ratio (&lt;33%)</span>
-        <strong>{debt_pct:.1f}% {'✅' if result.get('debt_ok', True) else '❌'}</strong>
-    </div>
-    <div style="background:#F1F5F9; height:8px; border-radius:4px; margin-top:5px; margin-bottom: 20px;">
-        <div style="width:{min(debt_pct, 100)}%; background:#3B82F6; height:8px; border-radius:4px;"></div>
-    </div>
-    
-    <div style="display:flex; justify-content:space-between; font-size: 14px;">
-        <span>Interest Income (&lt;5%)</span>
-        <strong>{int_pct:.1f}% {'✅' if result.get('interest_ok', True) else '❌'}</strong>
-    </div>
-    <div style="background:#F1F5F9; height:8px; border-radius:4px; margin-top:5px;">
-        <div style="width:{min(int_pct*5, 100)}%; background:#8B5CF6; height:8px; border-radius:4px;"></div>
-    </div>
+                        st.markdown(f"""<div class="white-card">
+<div class="card-subtitle">Shariah Metrics (Financials)</div>
+<div style="display:flex; justify-content:space-between; font-size: 14px; margin-top: 15px;">
+<span>Debt Ratio (&lt;33%)</span>
+<strong>{debt_pct:.1f}% {'✅' if result.get('debt_ok', True) else '❌'}</strong>
 </div>
-""", unsafe_allow_html=True)
-                        
+<div style="background:#F1F5F9; height:8px; border-radius:4px; margin-top:5px; margin-bottom: 20px;">
+<div style="width:{min(debt_pct, 100)}%; background:#3B82F6; height:8px; border-radius:4px;"></div>
+</div>
+<div style="display:flex; justify-content:space-between; font-size: 14px;">
+<span>Interest Income (&lt;5%)</span>
+<strong>{int_pct:.1f}% {'✅' if result.get('interest_ok', True) else '❌'}</strong>
+</div>
+<div style="background:#F1F5F9; height:8px; border-radius:4px; margin-top:5px;">
+<div style="width:{min(int_pct*5, 100)}%; background:#8B5CF6; height:8px; border-radius:4px;"></div>
+</div>
+</div>""", unsafe_allow_html=True)
                     with c3:
                         st.markdown(f"""
 <div class="white-card">
